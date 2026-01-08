@@ -6,7 +6,7 @@
     "buildCommand": "cd backend && rm -rf node_modules package-lock.json && npm install && DATABASE_URL=\"${DATABASE_URL:-postgresql://user:password@localhost:5432/db?schema=public}\" npx prisma generate || echo \"⚠️  Prisma generate falhou, mas continuando...\""
   },
   "deploy": {
-    "startCommand": "cd backend && npx prisma migrate deploy && npm start",
+    "startCommand": "cd backend && (if [ -n \"$DATABASE_URL\" ] && [ \"$DATABASE_URL\" != \"\" ]; then npx prisma migrate deploy || true; fi) && npm start",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }

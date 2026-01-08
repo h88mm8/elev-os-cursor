@@ -11,5 +11,5 @@ cmds = ['cd backend && npm ci --production=false']
 cmds = ['cd backend && DATABASE_URL="${DATABASE_URL:-postgresql://user:password@localhost:5432/db?schema=public}" npx prisma generate || echo "⚠️  Prisma generate falhou, mas continuando..."']
 
 [start]
-cmd = 'cd backend && npx prisma migrate deploy && npm start'
+cmd = 'cd backend && (if [ -n "$DATABASE_URL" ] && [ "$DATABASE_URL" != "" ]; then npx prisma migrate deploy || true; fi) && npm start'
 
