@@ -3,8 +3,7 @@
 # Script de start para Railway
 # Garante que Prisma sempre tenha DATABASE_URL (mesmo fictício) para validação do schema
 
-# DEFINIR DATABASE_URL ANTES DE QUALQUER COISA
-# Isso é crítico porque o Prisma valida o schema na importação
+# DATABASE_URL fictício para validação do schema do Prisma
 FAKE_DB_URL="postgresql://user:password@localhost:5432/db?schema=public"
 
 # Se não houver DATABASE_URL, definir fictício IMEDIATAMENTE
@@ -12,8 +11,6 @@ if [ -z "$DATABASE_URL" ] || [ "$DATABASE_URL" = "" ]; then
   export DATABASE_URL="$FAKE_DB_URL"
   echo "⚠️  DATABASE_URL não configurado. Usando valor fictício para validação do schema."
 fi
-
-cd backend || exit 1
 
 # Verificar se DATABASE_URL é válido (não fictício)
 HAS_REAL_DB=false
@@ -36,4 +33,3 @@ fi
 
 echo "🚀 Iniciando servidor..."
 npm start
-

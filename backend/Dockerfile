@@ -27,4 +27,5 @@ EXPOSE 3001
 COPY backend/start.sh ./start.sh
 RUN chmod +x start.sh
 # O start.sh vai verificar se há DATABASE_URL real e sobrescrever se necessário
-CMD ["sh", "./start.sh"]
+# Usar exec form sem sh para evitar problemas
+CMD ["./start.sh"]
