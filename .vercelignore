@@ -1,0 +1,22 @@
+# Electron files (não precisam no Vercel)
+electron/
+dist-electron/
+*.app
+*.dmg
+*.exe
+*.deb
+*.rpm
+
+# Build Electron
+build:electron
+
+# Backend (deploy separado no Railway)
+backend/
+
+# Node modules (já instalado no Vercel)
+node_modules/
+
+# Configurações locais
+.env.local
+.env.*.local
+

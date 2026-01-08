@@ -11,8 +11,9 @@
     "start:bash": "bash start.sh",
     "start:backend": "cd backend && npm run dev",
     "start:frontend": "npm run dev:vite",
-    "build": "npm run build:electron && vite build && electron-builder",
-    "build:electron": "tsc -p electron/tsconfig.json",
+    "build": "vite build",
+    "build:electron": "tsc -p electron/tsconfig.json && vite build && electron-builder",
+    "build:web": "vite build",
     "preview": "vite preview"
   },
   "keywords": [
