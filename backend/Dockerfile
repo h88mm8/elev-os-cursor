@@ -11,7 +11,7 @@ WORKDIR /app
 COPY backend/package*.json ./
 RUN npm ci --production=false
 
-# Copiar código
+# Copiar código do backend para /app
 COPY backend/ ./
 
 # Gerar Prisma Client (DATABASE_URL já existe como ENV)
@@ -23,8 +23,8 @@ RUN npm run build 2>&1 || echo "⚠️  Build TypeScript falhou, mas continuando
 # Expor porta
 EXPOSE 3001
 
-# Comando de start
+# Comando de start - já estamos em /app com todo o código
 COPY backend/start.sh ./start.sh
 RUN chmod +x start.sh
 # O start.sh vai verificar se há DATABASE_URL real e sobrescrever se necessário
-CMD ["./start.sh"]
+CMD ["sh", "./start.sh"]
