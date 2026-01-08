@@ -20,8 +20,10 @@ RUN npm run build 2>&1 || echo "⚠️  Build TypeScript falhou, mas continuando
 EXPOSE 3001
 
 # Comando de start
-COPY backend/start.sh ./
+COPY backend/start.sh ./start.sh
 RUN chmod +x start.sh
-ENV DATABASE_URL=${DATABASE_URL:-postgresql://user:password@localhost:5432/db?schema=public}
-CMD ["./start.sh"]
+# Definir DATABASE_URL como ENV padrão para que exista desde o início do container
+ENV DATABASE_URL=postgresql://user:password@localhost:5432/db?schema=public
+# O start.sh vai sobrescrever se houver DATABASE_URL real
+CMD ["sh", "-c", "export DATABASE_URL=\"${DATABASE_URL:-postgresql://user:password@localhost:5432/db?schema=public}\" && sh start.sh"]
 
