@@ -20,5 +20,5 @@ RUN npm run build || true
 EXPOSE 3001
 
 # Comando de start
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+CMD ["sh", "-c", "if [ -n \"$DATABASE_URL\" ] && [ \"$DATABASE_URL\" != \"\" ]; then npx prisma migrate deploy || true; fi && npm start"]
 

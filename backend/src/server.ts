@@ -80,13 +80,35 @@ app.use((req, res) => {
 app.use(errorHandler)
 
 // Start server
-const PORT = config.port
+const PORT = config.port || process.env.PORT || 3001
+
+// Tratamento de erros não capturados
+process.on('uncaughtException', (error) => {
+  console.error('❌ Erro não capturado:', error)
+  // Não encerrar o processo imediatamente
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Promise rejeitada não tratada:', reason)
+  // Não encerrar o processo imediatamente
+})
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`)
   console.log(`📡 Ambiente: ${config.nodeEnv}`)
   console.log(`🌐 Health check: http://localhost:${PORT}/health`)
   console.log(`📚 API Base: http://localhost:${PORT}/api`)
+  
+  if (!process.env.DATABASE_URL) {
+    console.warn('⚠️  DATABASE_URL não configurado. Alguns recursos podem não funcionar.')
+  }
+}).on('error', (error: any) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`❌ Porta ${PORT} já está em uso.`)
+  } else {
+    console.error('❌ Erro ao iniciar servidor:', error)
+  }
+  process.exit(1)
 })
 
 export default app

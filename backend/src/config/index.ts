@@ -4,7 +4,7 @@ dotenv.config()
 
 export const config = {
   port: parseInt(process.env.PORT || '3001', 10),
-  nodeEnv: process.env.NODE_ENV || 'development',
+  nodeEnv: process.env.NODE_ENV || process.env.RAILWAY_ENVIRONMENT || 'development',
   
   // API Keys
   apollo: {

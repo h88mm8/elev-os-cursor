@@ -1,13 +1,26 @@
 import { PrismaClient } from '@prisma/client'
 import { Lead, Company, Communication, DailyActivity } from '../models/Lead'
 
-const prisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-})
+let prisma: PrismaClient | null = null
+
+// Inicializar Prisma apenas se DATABASE_URL estiver disponível
+if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('user:password')) {
+  try {
+    prisma = new PrismaClient({
+      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    })
+  } catch (error) {
+    console.warn('⚠️  Não foi possível inicializar Prisma. Usando fallback.')
+    prisma = null
+  }
+}
 
 export class DatabaseService {
   // Leads
   async createLead(leadData: any): Promise<Lead> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     // Buscar ou criar company
     let company = await prisma.company.findUnique({
       where: { domain: leadData.company.domain },
@@ -54,6 +67,9 @@ export class DatabaseService {
   }
 
   async getLeadById(id: string): Promise<Lead | null> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     const lead = await prisma.lead.findUnique({
       where: { id },
       include: { company: true },
@@ -63,6 +79,9 @@ export class DatabaseService {
   }
 
   async getAllLeads(): Promise<Lead[]> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     const leads = await prisma.lead.findMany({
       include: { company: true },
       orderBy: { createdAt: 'desc' },
@@ -72,6 +91,9 @@ export class DatabaseService {
   }
 
   async updateLead(id: string, updates: Partial<Lead>): Promise<Lead> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     const lead = await prisma.lead.update({
       where: { id },
       data: {
@@ -94,6 +116,9 @@ export class DatabaseService {
   }
 
   async deleteLead(id: string): Promise<void> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     await prisma.lead.delete({
       where: { id },
     })
@@ -101,6 +126,9 @@ export class DatabaseService {
 
   // Communications
   async createCommunication(commData: any): Promise<Communication> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     const comm = await prisma.communication.create({
       data: {
         leadId: commData.leadId,
@@ -120,6 +148,9 @@ export class DatabaseService {
   }
 
   async getCommunicationsByLead(leadId: string): Promise<Communication[]> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     const comms = await prisma.communication.findMany({
       where: { leadId },
       orderBy: { sentAt: 'desc' },
@@ -130,6 +161,9 @@ export class DatabaseService {
 
   // Daily Activities
   async createDailyActivity(activityData: any): Promise<DailyActivity> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     const activity = await prisma.dailyActivity.create({
       data: {
         leadId: activityData.leadId,
@@ -146,6 +180,9 @@ export class DatabaseService {
   }
 
   async getDailyActivitiesByLead(leadId: string): Promise<DailyActivity[]> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     const activities = await prisma.dailyActivity.findMany({
       where: { leadId },
       orderBy: { date: 'desc' },
@@ -156,6 +193,9 @@ export class DatabaseService {
 
   // Tracking Events
   async createTrackingEvent(eventData: any): Promise<any> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     return await prisma.trackingEvent.create({
       data: {
         leadId: eventData.leadId,
@@ -169,6 +209,9 @@ export class DatabaseService {
   }
 
   async getTrackingEventsByDomain(domain: string): Promise<any[]> {
+    if (!prisma) {
+      throw new Error('Database not available. Please configure DATABASE_URL.')
+    }
     return await prisma.trackingEvent.findMany({
       where: { domain },
       orderBy: { timestamp: 'desc' },
@@ -239,7 +282,14 @@ export class DatabaseService {
   }
 
   async disconnect() {
-    await prisma.$disconnect()
+    if (prisma) {
+      await prisma.$disconnect()
+    }
+  }
+
+  // Verificar se o banco está disponível
+  isAvailable(): boolean {
+    return prisma !== null
   }
 }
 
