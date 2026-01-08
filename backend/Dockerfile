@@ -20,5 +20,7 @@ RUN npm run build 2>&1 || echo "⚠️  Build TypeScript falhou, mas continuando
 EXPOSE 3001
 
 # Comando de start
-CMD ["sh", "-c", "if [ -n \"$DATABASE_URL\" ] && [ \"$DATABASE_URL\" != \"\" ]; then npx prisma migrate deploy || true; fi && npm start"]
+COPY backend/start.sh ./
+RUN chmod +x start.sh
+CMD ["./start.sh"]
 
