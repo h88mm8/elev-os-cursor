@@ -1,3 +1,9 @@
+// Definir DATABASE_URL fictício ANTES de qualquer import que use Prisma
+// Isso garante que o Prisma Client não falhe na validação do schema
+if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes('user:password@localhost')) {
+  process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/db?schema=public'
+}
+
 import express, { Express } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'

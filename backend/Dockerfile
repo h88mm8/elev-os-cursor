@@ -22,5 +22,6 @@ EXPOSE 3001
 # Comando de start
 COPY backend/start.sh ./
 RUN chmod +x start.sh
+ENV DATABASE_URL=${DATABASE_URL:-postgresql://user:password@localhost:5432/db?schema=public}
 CMD ["./start.sh"]
 

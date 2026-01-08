@@ -11,5 +11,5 @@ cmds = ['cd backend && npm ci --production=false']
 cmds = ['cd backend && DATABASE_URL="${DATABASE_URL:-postgresql://user:password@localhost:5432/db?schema=public}" npx prisma generate || echo "⚠️  Prisma generate falhou, mas continuando..."']
 
 [start]
-cmd = 'sh backend/start.sh'
+cmd = 'cd backend && export DATABASE_URL="${DATABASE_URL:-postgresql://user:password@localhost:5432/db?schema=public}" && sh start.sh'
 
