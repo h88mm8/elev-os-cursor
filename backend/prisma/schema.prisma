@@ -1,0 +1,171 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id               String    @id @default(uuid())
+  firstName        String
+  lastName         String
+  email            String?
+  phone            String?
+  linkedinUrl      String?
+  jobTitle         String
+  stage            String    @default("unknown")
+  score            Int       @default(0)
+  lastContactDate  DateTime?
+  nextActivityDate DateTime?
+  profilePicture   String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  communications Communication[]
+  dailyActivities DailyActivity[]
+  trackingEvents TrackingEvent[]
+
+  @@index([email])
+  @@index([stage])
+  @@index([createdAt])
+}
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String
+  domain      String   @unique
+  industry    String
+  size        String
+  revenue     String
+  location    String
+  description String?
+  logo        String?
+  website     String?
+  linkedinUrl String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  leads Lead[]
+
+  @@index([domain])
+}
+
+model Communication {
+  id        String   @id @default(uuid())
+  leadId    String
+  channel   String
+  type      String   // 'sent' | 'received'
+  content   String   @db.Text
+  subject   String?
+  sentAt    DateTime @default(now())
+  delivered Boolean  @default(false)
+  opened    Boolean  @default(false)
+  clicked   Boolean  @default(false)
+  replied   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([sentAt])
+  @@index([channel])
+}
+
+model DailyActivity {
+  id            String    @id @default(uuid())
+  leadId        String
+  date          DateTime  @default(now())
+  channel       String
+  message       String    @db.Text
+  linkedinAction String?
+  linkedinPostId String?
+  status        String    @default("pending") // 'pending' | 'approved' | 'edited' | 'ignored'
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([date])
+  @@index([status])
+}
+
+model TrackingEvent {
+  id        String   @id @default(uuid())
+  leadId    String?
+  domain    String
+  type      String   // 'page_view' | 'scroll' | 'cta_click'
+  url       String
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  lead Lead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([domain])
+  @@index([timestamp])
+  @@index([type])
+}
+
+model Webhook {
+  id          String   @id @default(uuid())
+  url         String
+  events      String[] // Array de eventos que o webhook escuta
+  secret      String?  // Secret para validar webhooks
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  deliveries WebhookDelivery[]
+
+  @@index([active])
+}
+
+model WebhookDelivery {
+  id        String   @id @default(uuid())
+  webhookId String
+  event     String
+  payload   Json
+  status    String   @default("pending") // 'pending' | 'success' | 'failed'
+  statusCode Int?
+  response  String?  @db.Text
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  deliveredAt DateTime?
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Settings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("user") // 'admin' | 'user'
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLogin DateTime?
+
+  @@index([email])
+}
+
