@@ -1,5 +1,5 @@
 // Puppeteer removido temporariamente para acelerar build
-// Reinstalar quando necessário: npm install puppeteer@latest
+// Para reativar: npm install puppeteer@latest e descomentar código abaixo
 // import puppeteer from 'puppeteer'
 import * as cheerio from 'cheerio'
 
@@ -18,7 +18,13 @@ class LinkedInScrapingService {
       // NOTA: Scraping do LinkedIn pode violar os termos de serviço
       // Recomenda-se usar a API oficial do LinkedIn ou serviços como Unipile
       
-      // Esta é uma implementação básica - em produção, use APIs oficiais
+      // Puppeteer removido temporariamente para acelerar build
+      // Para usar scraping com Puppeteer:
+      // 1. Instale: npm install puppeteer@latest
+      // 2. Descomente o código abaixo
+      
+      /*
+      // Método 1: Usando Puppeteer (requer mais recursos)
       const browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -35,26 +41,21 @@ class LinkedInScrapingService {
           timeout: 30000,
         })
 
-        // Aguardar carregamento dos posts
         await page.waitForSelector('[data-test-id="activity-entry"]', {
           timeout: 10000,
-        }).catch(() => {
-          // Se não encontrar, continuar mesmo assim
-        })
+        }).catch(() => {})
 
         const content = await page.content()
         const $ = cheerio.load(content)
 
         const posts: LinkedInPost[] = []
 
-        // Extrair posts (seletores podem variar)
         $('[data-test-id="activity-entry"]').each((index, element) => {
           const $el = $(element)
           
           const postContent = $el.find('.feed-shared-text').text().trim()
           const postUrl = $el.find('a[href*="/activity-"]').attr('href') || ''
           
-          // Tentar extrair likes e comentários
           const likesText = $el.find('[aria-label*="like"]').text()
           const likes = this.parseNumber(likesText) || 0
           
@@ -65,7 +66,7 @@ class LinkedInScrapingService {
             posts.push({
               id: `post-${Date.now()}-${index}`,
               content: postContent,
-              publishedDate: new Date(), // Tentar extrair data real se possível
+              publishedDate: new Date(),
               likes,
               comments,
               url: postUrl.startsWith('http') ? postUrl : `https://linkedin.com${postUrl}`,
@@ -74,17 +75,19 @@ class LinkedInScrapingService {
         })
 
         await browser.close()
-
-        return posts.slice(0, 10) // Limitar a 10 posts mais recentes
+        return posts.slice(0, 10)
       } catch (error) {
         await browser.close()
         throw error
       }
+      */
+
+      // Método alternativo: Usar Unipile API (recomendado para produção)
+      // Ou retornar vazio temporariamente
+      console.log('LinkedIn scraping via Puppeteer desabilitado. Use Unipile API para scraping.')
+      return []
     } catch (error: any) {
       console.error('Erro ao fazer scraping do LinkedIn:', error.message)
-      
-      // Retornar array vazio em caso de erro (não quebrar o fluxo)
-      // Em produção, você pode querer usar a API do LinkedIn ou Unipile
       return []
     }
   }
@@ -92,7 +95,6 @@ class LinkedInScrapingService {
   private parseNumber(text: string): number | null {
     if (!text) return null
     
-    // Remover espaços e caracteres não numéricos
     const cleaned = text.replace(/\D/g, '')
     const num = parseInt(cleaned, 10)
     
@@ -108,4 +110,3 @@ class LinkedInScrapingService {
 }
 
 export const linkedinScrapingService = new LinkedInScrapingService()
-
