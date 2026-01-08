@@ -3,16 +3,23 @@ import { Lead, Company, Communication, DailyActivity } from '../models/Lead'
 
 let prisma: PrismaClient | null = null
 
-// Inicializar Prisma apenas se DATABASE_URL estiver disponível
-if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('user:password')) {
+// Inicializar Prisma apenas se DATABASE_URL estiver disponível e for válido
+const dbUrl = process.env.DATABASE_URL || ''
+const isFakeDb = dbUrl.includes('user:password@localhost') || dbUrl === ''
+
+if (dbUrl && !isFakeDb) {
   try {
     prisma = new PrismaClient({
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     })
+    console.log('✅ Prisma Client inicializado com banco de dados.')
   } catch (error) {
     console.warn('⚠️  Não foi possível inicializar Prisma. Usando fallback.')
     prisma = null
   }
+} else {
+  console.log('⚠️  DATABASE_URL não configurado ou inválido. Prisma não será usado.')
+  prisma = null
 }
 
 export class DatabaseService {
