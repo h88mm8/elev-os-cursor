@@ -3,7 +3,7 @@
   "$schemaVersion": "1",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "cd backend && rm -rf node_modules package-lock.json && npm install && DATABASE_URL=\"${DATABASE_URL:-postgresql://user:password@localhost:5432/db?schema=public}\" npx prisma generate || echo \"⚠️  Prisma generate falhou, mas continuando...\""
+    "buildCommand": "cd backend && npm install && DATABASE_URL=\"postgresql://user:password@localhost:5432/db?schema=public\" npx prisma generate || echo \"⚠️  Prisma generate falhou, mas continuando...\""
   },
   "deploy": {
     "startCommand": "cd backend && export DATABASE_URL=\"${DATABASE_URL:-postgresql://user:password@localhost:5432/db?schema=public}\" && sh start.sh",
