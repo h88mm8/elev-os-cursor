@@ -1,4 +1,6 @@
-import puppeteer from 'puppeteer'
+// Puppeteer removido temporariamente para acelerar build
+// Reinstalar quando necessário: npm install puppeteer@latest
+// import puppeteer from 'puppeteer'
 import * as cheerio from 'cheerio'
 
 interface LinkedInPost {
