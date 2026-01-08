@@ -13,8 +13,8 @@ COPY backend/ ./
 # Gerar Prisma Client
 RUN npx prisma generate
 
-# Build TypeScript
-RUN npm run build || true
+# Build TypeScript (tentar, mas não falhar se houver erro)
+RUN npm run build 2>&1 || echo "⚠️  Build TypeScript falhou, mas continuando..."
 
 # Expor porta
 EXPOSE 3001
